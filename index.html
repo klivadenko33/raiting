@@ -15,8 +15,7 @@
   <ul id="player-list">Загрузка...</ul>
 
   <script>
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbwx9GCeQXBsXL1uv_QCaHvEatJgIEEP7kYzDFFExVc3hTQuqOb5OGRpKJRfYTkJFmCSHg/exec?route=rating';
-
+    const apiUrl = 'https://corsproxy.io/?https://script.google.com/macros/s/AKfycbwx9GCeQXBsXL1uv_QCaHvEatJgIEEP7kYzDFFExVc3hTQuqOb5OGRpKJRfYTkJFmCSHg/exec?route=rating';
     fetch(apiUrl)
       .then(res => res.json())
       .then(players => {
