@@ -1,41 +1,67 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Рейтинг игроков</title>
+  <meta charset="UTF-8" />
+  <title>Список игроков</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    h1 { margin-bottom: 20px; }
-    ul { list-style: none; padding: 0; }
-    li { padding: 10px; border-bottom: 1px solid #ccc; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 8px 12px; border: 1px solid #ccc; text-align: left; }
+    th { background: #f4f4f4; }
+    img { max-width: 50px; max-height: 50px; border-radius: 50%; }
   </style>
 </head>
 <body>
   <h1>Список игроков</h1>
-  <ul id="player-list">Загрузка...</ul>
+  <table id="players-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Возраст</th>
+        <th>Город</th>
+        <th>Фото</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    const apiUrl = 'https://corsproxy.io/?https://script.google.com/macros/s/AKfycbwx9GCeQXBsXL1uv_QCaHvEatJgIEEP7kYzDFFExVc3hTQuqOb5OGRpKJRfYTkJFmCSHg/exec?route=rating';
-    fetch(apiUrl)
-      .then(res => res.json())
-      .then(players => {
-        const list = document.getElementById('player-list');
-        list.innerHTML = '';
+    const spreadsheetId = '1fK7bXj2QVuxZ0-tZV6tifPaDidmv_GntqOqtRw_anMo';
+    const query = 'select A, B, C, D, E'; // колонки id, name, age, city, photo_url
+    const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tq=${encodeURIComponent(query)}`;
 
-        if (!players || players.length === 0) {
-          list.textContent = 'Игроков пока нет.';
-          return;
-        }
+    fetch(url)
+      .then(res => res.text())
+      .then(text => {
+        // Вытаскиваем JSON из JS-обёртки Google
+        const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);/)[1]);
+        const rows = json.table.rows;
 
-        players.forEach(player => {
-          const li = document.createElement('li');
-          li.textContent = `${player.name || 'Без имени'} — ${player.score || 0} очков`;
-          list.appendChild(li);
+        const tbody = document.querySelector('#players-table tbody');
+        tbody.innerHTML = '';
+
+        rows.forEach(row => {
+          const cells = row.c;
+          const id = cells[0]?.v || '';
+          const name = cells[1]?.v || '';
+          const age = cells[2]?.v || '';
+          const city = cells[3]?.v || '';
+          const photo = cells[4]?.v || '';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${id}</td>
+            <td>${name}</td>
+            <td>${age}</td>
+            <td>${city}</td>
+            <td>${photo ? `<img src="${photo}" alt="${name}">` : ''}</td>
+          `;
+          tbody.appendChild(tr);
         });
       })
       .catch(err => {
-        document.getElementById('player-list').textContent = 'Ошибка загрузки игроков.';
-        console.error(err);
+        console.error('Ошибка загрузки данных:', err);
       });
   </script>
 </body>
