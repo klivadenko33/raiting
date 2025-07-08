@@ -29,7 +29,7 @@
   <script>
     const spreadsheetId = '1fK7bXj2QVuxZ0-tZV6tifPaDidmv_GntqOqtRw_anMo';
     const query = 'select A, B, C, D, E'; // колонки id, name, age, city, photo_url
-    const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tq=${encodeURIComponent(query)}`;
+    const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&tq=${encodeURIComponent(query)}`;
 
     fetch(url)
       .then(res => res.text())
