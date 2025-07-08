@@ -1,41 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Рейтинг и Турниры</title>
+  <title>Рейтинг игроков</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    h2 { margin-top: 40px; }
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    h1 { margin-bottom: 20px; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 10px; border-bottom: 1px solid #ccc; }
   </style>
 </head>
 <body>
-  <h1>Добро пожаловать!</h1>
-
-  <h2>🎖 Рейтинг игроков</h2>
-  <ul id="rating"></ul>
-
-  <h2>🎾 Турниры</h2>
-  <ul id="tournaments"></ul>
+  <h1>Список игроков</h1>
+  <ul id="player-list">Загрузка...</ul>
 
   <script>
-    const baseUrl = 'https://script.google.com/macros/s/1rq7WYR-UblCFEqZ5Vq_ZCK4D48apKxhlf_IuwWnVQnpbAWcmodEeBKIE/exec'; // ← замени на свой URL
+    const apiUrl = 'https://script.google.com/macros/s/ТВОЙ_ID/exec?route=rating';
 
-    fetch(`${baseUrl}?route=rating`)
+    fetch(apiUrl)
       .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('rating');
-        data.forEach(player => {
-          list.innerHTML += `<li><strong>${player.name}</strong> — ${player.score} очков</li>`;
-        });
-      });
+      .then(players => {
+        const list = document.getElementById('player-list');
+        list.innerHTML = '';
 
-    fetch(`${baseUrl}?route=tournaments`)
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('tournaments');
-        data.forEach(t => {
-          list.innerHTML += `<li><strong>${t.title}</strong> (${t.date}) — ${t.location}</li>`;
+        if (!players || players.length === 0) {
+          list.textContent = 'Игроков пока нет.';
+          return;
+        }
+
+        players.forEach(player => {
+          const li = document.createElement('li');
+          li.textContent = `${player.name || 'Без имени'} — ${player.score || 0} очков`;
+          list.appendChild(li);
         });
+      })
+      .catch(err => {
+        document.getElementById('player-list').textContent = 'Ошибка загрузки игроков.';
+        console.error(err);
       });
   </script>
 </body>
