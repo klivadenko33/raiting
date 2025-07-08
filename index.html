@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Рейтинг и Турниры</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h2 { margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <h1>Добро пожаловать!</h1>
+
+  <h2>🎖 Рейтинг игроков</h2>
+  <ul id="rating"></ul>
+
+  <h2>🎾 Турниры</h2>
+  <ul id="tournaments"></ul>
+
+  <script>
+    const baseUrl = 'https://script.google.com/macros/s/1rq7WYR-UblCFEqZ5Vq_ZCK4D48apKxhlf_IuwWnVQnpbAWcmodEeBKIE/exec'; // ← замени на свой URL
+
+    fetch(`${baseUrl}?route=rating`)
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('rating');
+        data.forEach(player => {
+          list.innerHTML += `<li><strong>${player.name}</strong> — ${player.score} очков</li>`;
+        });
+      });
+
+    fetch(`${baseUrl}?route=tournaments`)
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('tournaments');
+        data.forEach(t => {
+          list.innerHTML += `<li><strong>${t.title}</strong> (${t.date}) — ${t.location}</li>`;
+        });
+      });
+  </script>
+</body>
+</html>
