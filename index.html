@@ -2,66 +2,124 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Список игроков</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Список игроков — KlivaDNK</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { padding: 8px 12px; border: 1px solid #ccc; text-align: left; }
-    th { background: #f4f4f4; }
-    img { max-width: 50px; max-height: 50px; border-radius: 50%; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f4f8;
+      margin: 0; padding: 20px;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      color: #1e40af;
+    }
+    header p {
+      font-size: 1.1rem;
+      color: #555;
+      margin-top: 8px;
+    }
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .player-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+      overflow: hidden;
+      cursor: default;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+    }
+    .player-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+    }
+    .player-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+      background: #ddd;
+    }
+    .player-name {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0 0 6px 0;
+      color: #1e40af;
+    }
+    .player-info {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    @media (max-width: 480px) {
+      body { padding: 10px; }
+      .player-card { padding: 10px; }
+      .player-photo { width: 100px; height: 100px; }
+    }
   </style>
 </head>
 <body>
-  <h1>Список игроков</h1>
-  <table id="players-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Имя</th>
-        <th>Возраст</th>
-        <th>Город</th>
-        <th>Фото</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <header>
+    <h1>Рейтинг игроков KlivaDNK</h1>
+    <p>Список всех игроков с фото, возрастом и городом</p>
+  </header>
+  <main>
+    <div class="players-grid" id="playersGrid"></div>
+  </main>
 
   <script>
     const spreadsheetId = '1fK7bXj2QVuxZ0-tZV6tifPaDidmv_GntqOqtRw_anMo';
-    const query = 'select A, B, C, D, E'; // колонки id, name, age, city, photo_url
+    const query = 'select A, B, C, D, E'; // id, name, age, city, photo_url
     const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:json&tq=${encodeURIComponent(query)}`;
 
     fetch(url)
       .then(res => res.text())
       .then(text => {
-        // Вытаскиваем JSON из JS-обёртки Google
         const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);/)[1]);
         const rows = json.table.rows;
 
-        const tbody = document.querySelector('#players-table tbody');
-        tbody.innerHTML = '';
+        const container = document.getElementById('playersGrid');
+        container.innerHTML = '';
 
         rows.forEach(row => {
-          const cells = row.c;
-          const id = cells[0]?.v || '';
-          const name = cells[1]?.v || '';
-          const age = cells[2]?.v || '';
-          const city = cells[3]?.v || '';
-          const photo = cells[4]?.v || '';
+          const c = row.c;
+          const id = c[0]?.v || '';
+          const name = c[1]?.v || '';
+          const age = c[2]?.v || '';
+          const city = c[3]?.v || '';
+          const photo = c[4]?.v || '';
 
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${id}</td>
-            <td>${name}</td>
-            <td>${age}</td>
-            <td>${city}</td>
-            <td>${photo ? `<img src="${photo}" alt="${name}">` : ''}</td>
+          const card = document.createElement('div');
+          card.className = 'player-card';
+
+          card.innerHTML = `
+            <img class="player-photo" src="${photo || 'https://via.placeholder.com/120?text=No+Photo'}" alt="${name}">
+            <h2 class="player-name">${name}</h2>
+            <div class="player-info">Возраст: ${age}</div>
+            <div class="player-info">Город: ${city}</div>
           `;
-          tbody.appendChild(tr);
+
+          container.appendChild(card);
         });
       })
       .catch(err => {
-        console.error('Ошибка загрузки данных:', err);
+        console.error('Ошибка загрузки игроков:', err);
+        document.getElementById('playersGrid').innerHTML = '<p>Не удалось загрузить данные. Попробуйте позже.</p>';
       });
   </script>
 </body>
